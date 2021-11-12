@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd /home/hunter99/.steam/steam/steamapps/compatdata/1466860/pfx/drive_c/windows/system32
+md5=($(md5sum ucrtbase.dll))
+
+if [ "$md5" = "9a7d53de33690466eb200ee1c0dbb400" ]; then
+    zenity --info --text="Correct" --title="Good!"
+else
+    zenity --error --text="Wrong file $md5" --title="Warning!"
+fi
