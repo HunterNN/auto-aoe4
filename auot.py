@@ -37,14 +37,23 @@ def downloadFile(url, dest_path):
     os.system(f'wget -c --read-timeout=5 --tries=0 "{url}" -P "{dest_path}"')
 
 def extractFile(folder_path, exe_name, cabinet_name):
-    os.system(f'cabextract "{os.path.join(folder_path, exe_name)}"')
-    os.system(f'cabextract "{os.path.join(folder_path, cabinet_name)}"')
+    os.system(f'cabextract "{os.path.join(folder_path, exe_name)}" -d "{folder_path}"')
+    os.system(f'cabextract "{os.path.join(folder_path, cabinet_name)}" -d "{folder_path}"')
 
-def checkFiles(path_1, path_2, file_name):
-    sum_1 = os.popen(f'md5sum "{os.path.join(path_1, file_name)}"').read()
-    messagebox("", sum_1)
+def areFilesSame(path_1, path_2, file_name):
+    sum_1 = os.popen(f'md5sum "{os.path.join(path_1, file_name)}"').read().split()[0]
+    sum_2 = os.popen(f'md5sum "{os.path.join(path_2, file_name)}"').read().split()[0]
+    return sum_1 in sum_2
+
+def replaceFile(source_path, dest_path, file_name):
+    os.popen(f'cp "{os.path.join(source_path, file_name)}" "{os.path.join(dest_path, file_name)}"').read()
 
 system32_path = getAndCheckSystemFolder()
 downloadFile(REDIST_FILE_URL, TMP_PATH)
 extractFile(TMP_PATH, REDIST_FILE_NAME, CABINET_FILE)
-checkFiles(TMP_PATH, system32_path, DLL_FILE)
+
+if areFilesSame(TMP_PATH, system32_path, DLL_FILE):
+    messagebox("Already up to date", "File is already patched!")
+else:
+    replaceFile(TMP_PATH, system32_path, DLL_FILE)
+    messagebox("Patched", "File got Patched!")
